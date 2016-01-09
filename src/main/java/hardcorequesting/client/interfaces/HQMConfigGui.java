@@ -1,6 +1,6 @@
 package hardcorequesting.client.interfaces;
 
-import cpw.mods.fml.client.config.GuiConfig;
+import net.minecraftforge.fml.client.config.GuiConfig;
 import hardcorequesting.HardcoreQuesting;
 import hardcorequesting.ModInformation;
 import hardcorequesting.config.ModConfig;
@@ -10,10 +10,8 @@ import net.minecraftforge.common.config.Configuration;
 
 import java.util.List;
 
-public class HQMConfigGui extends GuiConfig
-{
-    public HQMConfigGui(GuiScreen parentScreen)
-    {
+public class HQMConfigGui extends GuiConfig {
+    public HQMConfigGui(GuiScreen parentScreen) {
         super(parentScreen,
                 ModConfig.getConfigElements(),
                 ModInformation.ID,

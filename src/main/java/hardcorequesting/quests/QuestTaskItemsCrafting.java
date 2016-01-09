@@ -1,8 +1,8 @@
 package hardcorequesting.quests;
 
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import hardcorequesting.EventHandler;
 import hardcorequesting.QuestingData;
 import hardcorequesting.client.interfaces.GuiEditMenuItem;
@@ -37,17 +37,15 @@ public class QuestTaskItemsCrafting extends QuestTaskItems {
             if (player != null && item != null) {
                 //no need for the quest to be active
                 //if (parent.isVisible(player) && parent.isEnabled(player) && isVisible(player)) {
-                    item = item.copy();
-                    if (item.stackSize == 0) {
-                        item.stackSize = 1;
-                    }
-                    increaseItems(new ItemStack[] {item}, (QuestDataTaskItems)getData(player), QuestingData.getUserName(player));
-               //}
+                item = item.copy();
+                if (item.stackSize == 0) {
+                    item.stackSize = 1;
+                }
+                increaseItems(new ItemStack[]{item}, (QuestDataTaskItems) getData(player), QuestingData.getUserName(player));
+                //}
             }
         }
     }
-
-
 
 
 }

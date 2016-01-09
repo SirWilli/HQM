@@ -1,8 +1,8 @@
 package hardcorequesting.config;
 
-import cpw.mods.fml.client.config.IConfigElement;
-import cpw.mods.fml.client.event.ConfigChangedEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.client.config.IConfigElement;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import hardcorequesting.ModInformation;
 import hardcorequesting.QuestingData;
 import hardcorequesting.Team;
@@ -16,8 +16,7 @@ import java.util.List;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
 
-public class ModConfig
-{
+public class ModConfig {
     private static final String CATEGORY_GENERAL = "General";
 
     private static final String LIVES_KEY = "Default lives";
@@ -72,6 +71,16 @@ public class ModConfig
     public static final String NO_HARDCORE_MESSAGE_COMMENT = "Enable or disable sending a status message if Hardcore Questing mode is off";
     public static final String NO_HARDCORE_MESSAGE_KEY = "NoHardcoreMessage";
 
+    public static boolean ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES;
+    private static final String ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_KEY = "AlwaysUseTierNameForRewardTitles";
+    private static final boolean ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_DEFAULT = false;
+    private static final String ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_COMMENT = "Always display the tier name, instead of the individual bag's name, when opening a reward bag.";
+
+    public static boolean LOSE_QUEST_BOOK_ON_DEATH;
+    private static final String LOSE_QUEST_BOOK_ON_DEATH_KEY = "LoseQuestBookOnDeath";
+    private static final boolean LOSE_QUEST_BOOK_ON_DEATH_DEFAULT = true;
+    private static final String LOSE_QUEST_BOOK_ON_DEATH_COMMENT = "Loose the quest book when you die, if set to false it will stay in your inventory";
+
     public static int OVERLAY_XPOS;
     public static int OVERLAY_YPOS;
     public static int OVERLAY_XPOSDEFAULT = 2;
@@ -79,24 +88,20 @@ public class ModConfig
 
     public static Configuration config;
 
-    public static void init(File file)
-    {
-        if (config == null)
-        {
+    public static void init(File file) {
+        if (config == null) {
             config = new Configuration(file);
             loadConfig();
         }
     }
 
     @SubscribeEvent
-    public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event)
-    {
+    public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.modID.equalsIgnoreCase(ModInformation.ID))
             loadConfig();
     }
 
-    private static void loadConfig()
-    {
+    private static void loadConfig() {
         int lives = config.get(CATEGORY_GENERAL, LIVES_KEY, LIVES_DEFAULT, LIVES_COMMENT).getInt(LIVES_DEFAULT);
         MAXLIVES = config.get(CATEGORY_GENERAL, MAXLIVES_KEY, MAXLIVES_DEFAULT, MAXLIVES_COMMENT).getInt(MAXLIVES_DEFAULT);
 
@@ -135,13 +140,16 @@ public class ModConfig
 
         NO_HARDCORE_MESSAGE = config.get(CATEGORY_GENERAL, NO_HARDCORE_MESSAGE_KEY, NO_HARDCORE_MESSAGE_DEFAULT, NO_HARDCORE_MESSAGE_COMMENT).getBoolean(NO_HARDCORE_MESSAGE_DEFAULT);
 
+        ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES = config.get(CATEGORY_GENERAL, ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_KEY, ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_DEFAULT, ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_COMMENT).getBoolean(ALWAYS_USE_TIER_NAME_FOR_REWARD_TITLES_DEFAULT);
+
+        LOSE_QUEST_BOOK_ON_DEATH = config.get(CATEGORY_GENERAL, LOSE_QUEST_BOOK_ON_DEATH_KEY, LOSE_QUEST_BOOK_ON_DEATH_DEFAULT, LOSE_QUEST_BOOK_ON_DEATH_COMMENT).getBoolean(LOSE_QUEST_BOOK_ON_DEATH_DEFAULT);
+
         if (config.hasChanged())
             config.save();
     }
 
     @SuppressWarnings("unchecked")
-    public static List<IConfigElement> getConfigElements()
-    {
+    public static List<IConfigElement> getConfigElements() {
         List<IConfigElement> list = new ArrayList<IConfigElement>();
         list.addAll(new ConfigElement(config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements());
         return list;

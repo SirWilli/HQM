@@ -1,12 +1,22 @@
-build
-.gradle
-eclipse
-new_old
-old
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
 out
-libs
-*.txt
-*.iml
 *.ipr
 *.iws
-/bin/
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run

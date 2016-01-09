@@ -17,13 +17,13 @@ public enum DataBitHelper {
     PLAYERS(16) {
         @Override
         public int getBitCount(FileVersion version) {
-            return version.lacks(FileVersion.REPEATABLE_QUESTS) ? 10 :  super.getBitCount(version);
+            return version.lacks(FileVersion.REPEATABLE_QUESTS) ? 10 : super.getBitCount(version);
         }
     },
     QUESTS(10) {
         @Override
         public int getBitCount(FileVersion version) {
-            return version.lacks(FileVersion.SETS) ? 7 :  super.getBitCount(version);
+            return version.lacks(FileVersion.SETS) ? 7 : super.getBitCount(version);
         }
     },
     TASKS(4),
@@ -37,13 +37,17 @@ public enum DataBitHelper {
     TASK_TYPE(4) {
         @Override
         public int getBitCount(FileVersion version) {
-            return version.lacks(FileVersion.REPUTATION_KILL) ? 3 :  super.getBitCount(version);
+            return version.lacks(FileVersion.REPUTATION_KILL) ? 3 : super.getBitCount(version);
         }
     },
     TASK_ITEM_COUNT(6, 35),
     TASK_REQUIREMENT(32),
     QUEST_REWARD(3),
-    ITEM_PRECISION(2),
+    ITEM_PRECISION(30) {
+        public int getBitCount(FileVersion version) {
+            return version.lacks(FileVersion.CUSTOM_PRECISION_TYPES) ? 2 : super.getBitCount(version);
+        }
+    },
     GROUP_ITEMS(6),
     GROUP_COUNT(10),
     TIER_COUNT(7),

@@ -1,9 +1,9 @@
 package hardcorequesting.quests;
 
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import hardcorequesting.*;
 import hardcorequesting.client.EditMode;
 import hardcorequesting.client.interfaces.GuiColor;
@@ -64,24 +64,20 @@ public abstract class QuestTaskItems extends QuestTask {
             this.hasItem = false;
         }
 
-        public ItemPrecision getPrecision()
-        {
+        public ItemPrecision getPrecision() {
             return precision;
         }
 
-        public void setPrecision(ItemPrecision precision)
-        {
+        public void setPrecision(ItemPrecision precision) {
             this.precision = precision;
             permutations = null;
         }
 
-        public ItemStack getItem()
-        {
+        public ItemStack getItem() {
             return item;
         }
 
-        public void setItem(ItemStack item)
-        {
+        public void setItem(ItemStack item) {
             this.item = item;
             this.permutations = null;
         }
@@ -92,34 +88,24 @@ public abstract class QuestTaskItems extends QuestTask {
         private int last;
         private static int CYCLE_TIME = 2;//2 second cycle
 
-        private void setPermutations()
-        {
+        private void setPermutations() {
             if (item == null) return;
-            switch (precision)
-            {
-                case ORE_DICTIONARY:
-                    permutations = OreDictionaryHelper.getPermutations(item);
-                    break;
-                case FUZZY:
-                    List<ItemStack> items = new ArrayList<>();
-                    item.getItem().getSubItems(item.getItem(), null, items);
-                    permutations = items.toArray(new ItemStack[items.size()]);
+            permutations = precision.getPermutations(item);
+            if (permutations != null && permutations.length > 0) {
+                last = permutations.length - 1;
+                cycleAt = -1;
             }
-            last = permutations.length-1;
-            cycleAt = -1;
         }
 
-        public ItemStack getPermutatedItem()
-        {
-            if (permutations == null && (precision == ItemPrecision.ORE_DICTIONARY || precision == ItemPrecision.FUZZY))
+        public ItemStack getPermutatedItem() {
+            if (permutations == null && precision.hasPermutations())
                 setPermutations();
             if (permutations == null || permutations.length < 2)
                 return item;
-            int ticks = (int)(System.currentTimeMillis()/1000);
+            int ticks = (int) (System.currentTimeMillis() / 1000);
             if (cycleAt == -1)
                 cycleAt = ticks + CYCLE_TIME;
-            if (ticks >= cycleAt)
-            {
+            if (ticks >= cycleAt) {
                 if (++current > last) current = 0;
                 while (ticks >= cycleAt)
                     cycleAt += CYCLE_TIME;
@@ -130,8 +116,7 @@ public abstract class QuestTaskItems extends QuestTask {
         private int x;
         private int y;
 
-        public String getDisplayName()
-        {
+        public String getDisplayName() {
             ItemStack item = getPermutatedItem();
             if (hasItem && item == null) {
                 return "Nothing";
@@ -186,14 +171,12 @@ public abstract class QuestTaskItems extends QuestTask {
         return data.progress[id];
     }
 
-    protected void resetTask(String playerName, int id)
-    {
+    protected void resetTask(String playerName, int id) {
         getData(playerName).completed = false;
         ((QuestDataTaskItems) getData(playerName)).progress[id] = 0;
     }
 
-    protected void completeTask(String playerName, int id, int count)
-    {
+    protected void completeTask(String playerName, int id, int count) {
         QuestDataTaskItems data = (QuestDataTaskItems) getData(playerName);
         data.progress[id] = count;
         doCompletionCheck(data, playerName);
@@ -260,7 +243,7 @@ public abstract class QuestTaskItems extends QuestTask {
                 dw.writeData(item.item.getItemDamage(), DataBitHelper.SHORT);
                 dw.writeNBT(item.item.getTagCompound());
                 dw.writeData(item.required, DataBitHelper.TASK_REQUIREMENT);
-                dw.writeData(item.precision.ordinal(), DataBitHelper.ITEM_PRECISION);
+                dw.writeString(ItemPrecision.getUniqueID(item.precision), DataBitHelper.ITEM_PRECISION);
             } else {
                 FluidStack fluidStack = new FluidStack(item.fluid, item.required);
                 NBTTagCompound compound = new NBTTagCompound();
@@ -291,7 +274,9 @@ public abstract class QuestTaskItems extends QuestTask {
                 ItemStack itemStack = new ItemStack(item, 1, dmg);
                 itemStack.setTagCompound(compound);
                 items[i] = new ItemRequirement(itemStack, dr.readData(DataBitHelper.TASK_REQUIREMENT));
-                items[i].precision = ItemPrecision.values()[dr.readData(DataBitHelper.ITEM_PRECISION)];
+                items[i].precision = version.lacks(FileVersion.CUSTOM_PRECISION_TYPES) ?
+                        ItemPrecision.getOldPrecisionType(dr.readData(DataBitHelper.ITEM_PRECISION))
+                        : ItemPrecision.getPrecisionType(dr.readString(DataBitHelper.ITEM_PRECISION));
             } else {
                 NBTTagCompound compound = dr.readNBT();
                 FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(compound);
@@ -319,7 +304,8 @@ public abstract class QuestTaskItems extends QuestTask {
             if (item.hasItem) {
                 gui.drawItem(item.getPermutatedItem(), item.x, item.y, mX, mY, false);
             } else {
-                gui.drawFluid(item.fluid, item.x, item.y, mX, mY);
+                //Todo fix fluid drawing
+                //gui.drawFluid(item.fluid, item.x, item.y, mX, mY);
             }
 
             String str = (getProgress(player, i) * 100 / item.required) + "%";
@@ -345,9 +331,9 @@ public abstract class QuestTaskItems extends QuestTask {
                 if (Quest.isEditing)
                     str += "\n" + GuiColor.GRAY + item.getPrecision().getName();
                 if (gui.isOpBook && GuiScreen.isShiftKeyDown()) {
-                    if (isCompleted(player)) {
+                    if (getProgress(player, i) == item.required) {
                         str += "\n\n" + GuiColor.RED + Translator.translate("hqm.questBook.resetTask");
-                    }else{
+                    } else {
                         str += "\n\n" + GuiColor.ORANGE + Translator.translate("hqm.questBook.completeTask");
                     }
                 }
@@ -372,16 +358,23 @@ public abstract class QuestTaskItems extends QuestTask {
     @SideOnly(Side.CLIENT)
     @Override
     public void onClick(GuiQuestBook gui, EntityPlayer player, int mX, int mY, int b) {
-        if (Quest.isEditing) {
+        boolean isOpBookWithShiftKeyDown = gui.isOpBook && GuiScreen.isShiftKeyDown();
+        if (Quest.isEditing || isOpBookWithShiftKeyDown) {
 
             ItemRequirement[] items = getEditFriendlyItems(this.items);
 
             for (int i = 0; i < items.length; i++) {
                 ItemRequirement item = items[i];
                 if (gui.inBounds(item.x, item.y, SIZE, SIZE, mX, mY)) {
-                    if (gui.getCurrentMode() == EditMode.ITEM) {
+                    if (isOpBookWithShiftKeyDown) {
+                        if (getProgress(player, i) == item.required) {
+                            resetTask(QuestingData.getUserName(player), i);
+                        } else {
+                            completeTask(QuestingData.getUserName(player), i, item.required);
+                        }
+                    } else if (Quest.isEditing && gui.getCurrentMode() == EditMode.ITEM) {
                         gui.setEditMenu(new GuiEditMenuItem(gui, player, item.hasItem ? item.item != null ? item.item.copy() : null : item.fluid, i, getMenuTypeId(), item.required, item.precision));
-                    } else if (gui.getCurrentMode() == EditMode.DELETE && (item.item != null || item.fluid != null)) {
+                    } else if (Quest.isEditing && gui.getCurrentMode() == EditMode.DELETE && (item.item != null || item.fluid != null)) {
                         ItemRequirement[] newItems = new ItemRequirement[this.items.length - 1];
                         int id = 0;
                         for (int j = 0; j < this.items.length; j++) {
@@ -392,12 +385,6 @@ public abstract class QuestTaskItems extends QuestTask {
                         }
                         setItems(newItems);
                         SaveHelper.add(SaveHelper.EditType.TASK_ITEM_REMOVE);
-                    } else if (gui.isOpBook && GuiScreen.isShiftKeyDown()) {
-                        if (isCompleted(player)) {
-                            resetTask(QuestingData.getUserName(player), i);
-                        }else{
-                            completeTask(QuestingData.getUserName(player), i, item.required);
-                        }
                     }
                     break;
                 }

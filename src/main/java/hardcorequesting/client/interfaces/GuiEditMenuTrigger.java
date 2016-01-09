@@ -11,7 +11,7 @@ public class GuiEditMenuTrigger extends GuiEditMenuExtended {
     private int triggerTasks;
     private int id;
 
-    protected GuiEditMenuTrigger(GuiQuestBook gui, EntityPlayer player, Quest quest) {
+    public GuiEditMenuTrigger(GuiQuestBook gui, EntityPlayer player, Quest quest) {
         super(gui, player, true, 25, 20, 25, 135);
 
         this.id = quest.getId();
@@ -40,7 +40,7 @@ public class GuiEditMenuTrigger extends GuiEditMenuExtended {
     protected void onArrowClick(boolean left) {
         if (left) {
             type = TriggerType.values()[(type.ordinal() + TriggerType.values().length - 1) % TriggerType.values().length];
-        }else{
+        } else {
             type = TriggerType.values()[(type.ordinal() + 1) % TriggerType.values().length];
         }
     }

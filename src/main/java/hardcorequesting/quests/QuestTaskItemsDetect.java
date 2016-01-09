@@ -1,8 +1,8 @@
 package hardcorequesting.quests;
 
-import cpw.mods.fml.common.gameevent.PlayerEvent;;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import hardcorequesting.EventHandler;
 import hardcorequesting.QuestingData;
 import hardcorequesting.client.interfaces.GuiEditMenuItem;
@@ -36,9 +36,10 @@ public class QuestTaskItemsDetect extends QuestTaskItems {
     public void onUpdate(EntityPlayer player, DataReader dr) {
         countItems(player, null);
     }
+
     @Override
     public void onItemPickUp(EntityItemPickupEvent event) {
-        if(event.entityPlayer.inventory.inventoryChanged) {
+        if (event.entityPlayer.inventory.inventoryChanged) {
             countItems(event.entityPlayer, event.item.getEntityItem());
         }
     }
@@ -64,7 +65,7 @@ public class QuestTaskItemsDetect extends QuestTaskItems {
         ItemStack[] items;
         if (item == null) {
             items = player.inventory.mainInventory;
-        }else{
+        } else {
             items = new ItemStack[player.inventory.mainInventory.length + 1];
             ItemStack[] mainInventory = player.inventory.mainInventory;
             for (int i = 0; i < mainInventory.length; i++) {
@@ -76,10 +77,8 @@ public class QuestTaskItemsDetect extends QuestTaskItems {
     }
 
 
-
     public void countItems(ItemStack[] itemsToCount, QuestDataTaskItems data, String playerName) {
         if (!parent.isAvailable(playerName)) return;
-
 
 
         boolean updated = false;
@@ -121,7 +120,6 @@ public class QuestTaskItemsDetect extends QuestTaskItems {
         }
         parent.sendUpdatedDataToTeam(playerName);
     }
-
 
 
 }

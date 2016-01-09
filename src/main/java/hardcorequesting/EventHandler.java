@@ -1,10 +1,10 @@
 package hardcorequesting;
 
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import hardcorequesting.quests.QuestTask;
 import hardcorequesting.reputation.Reputation;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,7 +36,7 @@ public class EventHandler {
         }
     }
 
-    public void add(QuestTask task, Type ... types) {
+    public void add(QuestTask task, Type... types) {
         for (Type type : types) {
             registeredTasks[type.ordinal()].add(task);
         }
@@ -49,6 +49,7 @@ public class EventHandler {
     }
 
     private static EventHandler instance;
+
     public static EventHandler instance() {
         return instance;
     }

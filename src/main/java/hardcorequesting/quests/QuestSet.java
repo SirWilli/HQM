@@ -1,7 +1,7 @@
 package hardcorequesting.quests;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import hardcorequesting.OPBookHelper;
 import hardcorequesting.SaveHelper;
 import hardcorequesting.Translator;
@@ -112,6 +112,8 @@ public class QuestSet {
     }
 
     public void addRepBar(ReputationBar repBar) {
+        if (repBar == null) return;
+        repBar.setQuestSet(this.id);
         reputationBars.add(repBar);
     }
 
@@ -724,6 +726,9 @@ public class QuestSet {
                                 } else {
                                     gui.modifyingQuest.addOptionLink(quest.getId());
                                 }
+                                break;
+                            case TRIGGER:
+                                gui.setEditMenu(new GuiEditMenuTrigger(gui, player, quest));
                                 break;
                             default:
                                 break;

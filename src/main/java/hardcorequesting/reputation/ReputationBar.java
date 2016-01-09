@@ -1,7 +1,7 @@
 package hardcorequesting.reputation;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import hardcorequesting.FileVersion;
 import hardcorequesting.SaveHelper;
 import hardcorequesting.Translator;
@@ -43,6 +43,18 @@ public class ReputationBar {
         this.y = y;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getRepId() {
+        return repId;
+    }
+
     public int save() {
         int questSetSize = DataBitHelper.QUEST_SETS.getBitCount();
         return this.repId << questSetSize + 18 | this.x << questSetSize + 9 | this.y << questSetSize | this.questSet;
@@ -58,6 +70,10 @@ public class ReputationBar {
 
     public boolean isValid() {
         return Quest.getQuestSets().size() > this.questSet && getQuestSet() != null && Reputation.getReputation(this.repId) != null;
+    }
+
+    public boolean sameLocation(ReputationBar reputationBar) {
+        return reputationBar != null && reputationBar.x == this.x && reputationBar.y == this.y;
     }
 
     @SideOnly(Side.CLIENT)

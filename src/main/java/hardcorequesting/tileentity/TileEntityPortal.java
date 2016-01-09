@@ -1,7 +1,8 @@
 package hardcorequesting.tileentity;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.util.ITickable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import hardcorequesting.QuestingData;
 import hardcorequesting.Team;
 import hardcorequesting.client.interfaces.GuiBase;
@@ -20,13 +21,13 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+//import net.minecraft.util.IIcon;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class TileEntityPortal extends TileEntity implements IBlockSync {
+public class TileEntityPortal extends TileEntity implements IBlockSync, ITickable {
 
     private Quest quest;
     private int questId = -1;
@@ -94,10 +95,10 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
         if (quest != null) {
             compound.setShort(NBT_QUEST, quest.getId());
         }
-        compound.setByte(NBT_TYPE, (byte)type.ordinal());
+        compound.setByte(NBT_TYPE, (byte) type.ordinal());
         if (item != null) {
             compound.setShort(NBT_ID, (short) Item.getIdFromItem(item.getItem()));
-            compound.setShort(NBT_DMG, (short)item.getItemDamage());
+            compound.setShort(NBT_DMG, (short) item.getItemDamage());
         }
 
         compound.setBoolean(NBT_COLLISION, completedCollision);
@@ -124,7 +125,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
             if (Quest.getQuests() != null) {
                 quest = Quest.getQuest(questId);
             }
-        }else{
+        } else {
             quest = null;
         }
 
@@ -134,7 +135,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
             int dmg = compound.getShort(NBT_DMG);
 
             item = new ItemStack(Item.getItemById(id), 1, dmg);
-        }else{
+        } else {
             item = null;
         }
 
@@ -143,7 +144,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
             completedTexture = compound.getBoolean(NBT_COLLISION);
             uncompletedCollision = compound.getBoolean(NBT_NOT_COLLISION);
             uncompletedTexture = compound.getBoolean(NBT_NOT_TEXTURES);
-        }else{
+        } else {
             completedCollision = completedTexture = false;
             uncompletedCollision = uncompletedTexture = true;
         }
@@ -153,7 +154,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
     private int resetDelay = 0;
 
     @Override
-    public void updateEntity() {
+    public void update() {
         if (!worldObj.isRemote) {
             if (quest == null && questId != -1) {
                 quest = Quest.getQuest(questId);
@@ -197,7 +198,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                             updated = true;
                         }
                     }
-                }else if(players.size() > 0) {
+                } else if (players.size() > 0) {
                     players.clear();
                     updated = true;
                 }
@@ -209,7 +210,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
             if (updated) {
                 PacketHandler.sendBlockPacket(this, null, 0);
             }
-        }else{
+        } else {
             keepClientDataUpdated();
         }
     }
@@ -236,11 +237,11 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
 
     @SideOnly(Side.CLIENT)
     private void keepClientDataUpdated() {
-        double distance = Minecraft.getMinecraft().thePlayer.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5);
+        double distance = Minecraft.getMinecraft().thePlayer.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 
         if (distance > Math.pow(PacketHandler.BLOCK_UPDATE_RANGE, 2)) {
             hasUpdatedData = false;
-        }else if(!hasUpdatedData && distance < Math.pow(PacketHandler.BLOCK_UPDATE_RANGE - PacketHandler.BLOCK_UPDATE_BUFFER_DISTANCE, 2)) {
+        } else if (!hasUpdatedData && distance < Math.pow(PacketHandler.BLOCK_UPDATE_RANGE - PacketHandler.BLOCK_UPDATE_BUFFER_DISTANCE, 2)) {
             hasUpdatedData = true;
             PacketHandler.sendBlockPacket(this, Minecraft.getMinecraft().thePlayer, 0);
         }
@@ -273,14 +274,14 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                     for (String p : players) {
                         dw.writeString(p, DataBitHelper.NAME_LENGTH);
                     }
-                }else{
+                } else {
                     //send empty packet, no info required
                 }
                 break;
             case 1:
                 if (onServer) {
                     //empty
-                }else{
+                } else {
                     dw.writeData(type.ordinal(), DataBitHelper.PORTAL_TYPE);
                     if (!type.isPreset()) {
                         dw.writeBoolean(item != null);
@@ -304,10 +305,10 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                 if (onServer) {
                     //respond by sending the data to the client that required it
                     PacketHandler.sendBlockPacket(this, player, 0);
-                }else{
+                } else {
                     if (dr.readBoolean()) {
                         quest = Quest.getQuest(dr.readData(DataBitHelper.QUESTS));
-                    }else{
+                    } else {
                         quest = null;
                     }
                     type = PortalType.values()[dr.readData(DataBitHelper.PORTAL_TYPE)];
@@ -316,7 +317,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                             int itemId = dr.readData(DataBitHelper.SHORT);
                             int dmg = dr.readData(DataBitHelper.SHORT);
                             item = new ItemStack(Item.getItemById(itemId), 1, dmg);
-                        }else{
+                        } else {
                             item = null;
                         }
                     }
@@ -331,7 +332,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                     for (int i = 0; i < count; i++) {
                         players.add(dr.readString(DataBitHelper.NAME_LENGTH));
                     }
-                    worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                    worldObj.markBlockForUpdate(pos);
                 }
                 break;
             case 1:
@@ -343,7 +344,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                                 int itemId = dr.readData(DataBitHelper.SHORT);
                                 int dmg = dr.readData(DataBitHelper.SHORT);
                                 item = new ItemStack(Item.getItemById(itemId), 1, dmg);
-                            }else{
+                            } else {
                                 item = null;
                             }
                         }
@@ -353,7 +354,7 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
                         uncompletedTexture = dr.readBoolean();
                         PacketHandler.sendBlockPacket(this, null, 0); //refresh the clients
                     }
-                }else{
+                } else {
                     openInterfaceClient(player);
                 }
         }
@@ -380,20 +381,21 @@ public class TileEntityPortal extends TileEntity implements IBlockSync {
         return 1;
     }
 
-    @SideOnly(Side.CLIENT)
-    public IIcon getBlockIcon(int side) {
-        if (item != null && item.getItem() instanceof ItemBlock) {
-            Block block = Block.getBlockFromItem(item.getItem());
-            if (block != null) {
-                try {
-                    return block.getIcon(side, item.getItem().getMetadata(item.getItemDamage()));
-                }catch (Exception ignored) {}
-            }
-        }
-
-
-        return null;
-    }
+//    @SideOnly(Side.CLIENT)
+//    public IIcon getBlockIcon(int side) {
+//        if (item != null && item.getItem() instanceof ItemBlock) {
+//            Block block = Block.getBlockFromItem(item.getItem());
+//            if (block != null) {
+//                try {
+//                    return block.getIcon(side, item.getItem().getMetadata(item.getItemDamage()));
+//                } catch (Exception ignored) {
+//                }
+//            }
+//        }
+//
+//
+//        return null;
+//    }
 
     public ItemStack getItem() {
         return item;

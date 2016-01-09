@@ -1,8 +1,8 @@
 package hardcorequesting.quests;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import hardcorequesting.network.DataBitHelper;
 import hardcorequesting.network.DataReader;
 import hardcorequesting.network.DataWriter;
@@ -30,7 +30,7 @@ public class QuestTicker {
 
 
     public void tick(boolean isClient) {
-        if(++ticks == 1000) {
+        if (++ticks == 1000) {
             ticks = 0;
             hours++;
             if (!isClient) {
@@ -40,7 +40,7 @@ public class QuestTicker {
                         if (total != 0 && hours % total == 0) {
                             quest.resetAll();
                         }
-                    }else if(quest.getRepeatInfo().getType() == RepeatType.TIME) {
+                    } else if (quest.getRepeatInfo().getType() == RepeatType.TIME) {
                         quest.resetOnTime(hours - total);
                     }
                 }
